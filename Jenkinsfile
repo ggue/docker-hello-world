@@ -1,4 +1,4 @@
-podTemplate(label: 'docker-build',
+podTemplate(label: 'docker-build', 
   containers: [
     containerTemplate(
       name: 'git',
@@ -13,19 +13,20 @@ podTemplate(label: 'docker-build',
       ttyEnabled: true
     ),
   ],
-  volumes: [
-    hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
+  volumes: [ 
+    hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'), 
   ]
 ) {
     node('docker-build') {
         def dockerHubCred = docker-hub
-
+        def appImage
+        
         stage('Checkout'){
             container('git'){
                 checkout scm
             }
         }
-
+        
         stage('Build'){
             container('docker'){
                 script {
@@ -33,7 +34,7 @@ podTemplate(label: 'docker-build',
                 }
             }
         }
-
+        
         stage('Test'){
             container('docker'){
                 script {
@@ -56,5 +57,5 @@ podTemplate(label: 'docker-build',
             }
         }
     }
-
+    
 }
