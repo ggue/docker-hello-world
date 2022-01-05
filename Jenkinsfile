@@ -1,14 +1,14 @@
-podTemplate(label: 'docker-build', 
+podTemplate(label: 'docker-build', idleMinutes: 30,
   containers: [
     containerTemplate(
-      name: 'git',
-      image: 'alpine/git',
+      name: 'docker',
+      image: 'docker',
       command: 'cat',
       ttyEnabled: true
     ),
     containerTemplate(
-      name: 'docker',
-      image: 'docker',
+      name: 'argo',
+      image: 'argoproj/argo-cd-ci-builder:latest',
       command: 'cat',
       ttyEnabled: true
     ),
@@ -18,11 +18,11 @@ podTemplate(label: 'docker-build',
   ]
 ) {
     node('docker-build') {
-        def dockerHubCred = docker-hub
+        def dockerHubCred = "docker_hub"
         def appImage
         
         stage('Checkout'){
-            container('git'){
+            container('argo'){
                 checkout scm
             }
         }
@@ -41,21 +41,10 @@ podTemplate(label: 'docker-build',
                     appImage.inside {
                         sh 'npm install'
                         sh 'npm test'
+                        sleep 30
                     }
                 }
             }
         }
-
-        stage('Push'){
-            container('docker'){
-                script {
-                    docker.withRegistry('https://registry.hub.docker.com', dockerHubCred){
-                        appImage.push("${env.BUILD_NUMBER}")
-                        appImage.push("latest")
-                    }
-                }
-            }
-        }
-    }
-    
+    } 
 }
